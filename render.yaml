@@ -13,7 +13,6 @@ services:
     name: sese-board-game-frontend
     runtime: static
     plan: free
-    region: singapore
     buildCommand: cd games/sese-board-game/frontend/preview && npm ci && npm run build
     staticPublishPath: games/sese-board-game/frontend/preview/dist
     routes:
