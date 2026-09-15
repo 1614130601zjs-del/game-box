@@ -12,6 +12,27 @@ try to provide:
 - A frontend example or reusable UI component
 - Focused tests and minimal usage notes
 
+## One-click Render deployment
+
+The `sese-board-game` game can be deployed as a public HTTP MCP server on Render.
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/1614130601zjs-del/game-box)
+
+After deployment, use the service URL with the MCP path:
+
+```text
+https://YOUR-SERVICE.onrender.com/mcp
+```
+
+Health check:
+
+```text
+https://YOUR-SERVICE.onrender.com/healthz
+```
+
+The deployment is defined by the root `render.yaml`. The Render button lets you
+review the Blueprint and approve the service on your own Render account.
+
 ## Structure
 
 - `games/`: individual games, one subdirectory per game.
@@ -21,7 +42,8 @@ try to provide:
 ## Games
 
 - `games/sese-board-game/`: a portable roll-and-move board game with a Python
-  rules engine, command/tool adapter, tests, and a reusable React UI component.
+  rules engine, command/tool adapter, tests, a reusable React UI component, and
+  an HTTP MCP deployment entry point.
 
 ## Integration Boundary
 
