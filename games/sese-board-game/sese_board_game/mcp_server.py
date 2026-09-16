@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from .engine import run_command
-from .tool_adapter import TOOL_NAME, default_save_path, get_tools_for_inject
+from .tool_adapter import TOOL_NAME, default_save_path, get_tools_for_inject, AI_CONTEXT_INSTRUCTION
 
 
 SERVER_NAME = "sese-board-game-mcp"
@@ -111,6 +111,7 @@ def _dispatch(method: str, params: Any) -> dict[str, Any]:
                 "resources": {"listChanged": False},
             },
             "serverInfo": {"name": SERVER_NAME, "version": SERVER_VERSION},
+            "instructions": AI_CONTEXT_INSTRUCTION,
         }
 
     if method in {"notifications/initialized", "ping"}:
