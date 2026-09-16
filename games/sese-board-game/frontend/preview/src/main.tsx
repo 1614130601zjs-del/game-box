@@ -2,7 +2,8 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 import { SeseBoardGame, type AssistantContext, type SeseBoardPayload } from "../../SeseBoardGame";
 
-const API_BASE = "http://127.0.0.1:8766";
+// Public preview talks directly to the deployed MCP backend instead of the user's local machine.
+const API_BASE = import.meta.env.VITE_SESE_API_BASE || "https://sese-board-game-mcp.onrender.com";
 const RPS = ["石头", "剪刀", "布"];
 
 async function executeCommand(command: string): Promise<SeseBoardPayload> {
@@ -11,6 +12,9 @@ async function executeCommand(command: string): Promise<SeseBoardPayload> {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ command }),
   });
+  if (!response.ok) {
+    throw new Error(`游戏后端请求失败：HTTP ${response.status}`);
+  }
   return response.json();
 }
 
