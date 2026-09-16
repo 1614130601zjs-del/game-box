@@ -2,7 +2,6 @@ services:
   - type: web
     name: sese-board-game-mcp
     runtime: python
-    plan: free
     region: singapore
     buildCommand: python3 -m compileall -q games/sese-board-game/sese_board_game
     startCommand: cd games/sese-board-game && python3 -m sese_board_game.mcp_http_server
@@ -12,8 +11,7 @@ services:
   - type: web
     name: sese-board-game-frontend
     runtime: static
-    plan: free
-    buildCommand: cd games/sese-board-game/frontend/preview && npm ci && npm run build
+    buildCommand: cd games/sese-board-game/frontend/preview && npm install && npm run build
     staticPublishPath: games/sese-board-game/frontend/preview/dist
     routes:
       - type: rewrite
