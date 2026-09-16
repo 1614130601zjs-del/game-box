@@ -6,7 +6,9 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any
 
+from .engine import run_command
 from .mcp_server import handle_request
+from .tool_adapter import default_save_path
 
 
 HOST = "0.0.0.0"
@@ -54,17 +56,31 @@ class MCPHandler(BaseHTTPRequestHandler):
         self._send_json({"ok": True})
 
     def do_POST(self) -> None:
-        if self.path.rstrip("/") != "/mcp":
-            self._send_json({"ok": False, "error": "not found"}, status=404)
-            return
-
+        path = self.path.rstrip("/")
         try:
             length = int(self.headers.get("Content-Length") or 0)
             if length <= 0:
-                self._send_json({"jsonrpc": "2.0", "id": None, "error": {"code": -32600, "message": "Invalid Request"}}, status=400)
+                self._send_json({"ok": False, "error": "empty request body"}, status=400)
                 return
-            message = json.loads(self.rfile.read(length).decode("utf-8"))
-            response = handle_request(message)
+            body = json.loads(self.rfile.read(length).decode("utf-8"))
+
+            # Simple JSON command endpoint used by the standalone web preview.
+            # The MCP client continues to use /mcp below.
+            if path == "/command":
+                if not isinstance(body, dict):
+                    self._send_json({"ok": False, "error": "request body must be an object"}, status=400)
+                    return
+                command = str(body.get("command") or "status").strip()
+                save_path = body.get("save_path") or default_save_path()
+                payload = run_command(command, save_path=save_path)
+                self._send_json(payload, status=200 if payload.get("ok", True) else 400)
+                return
+
+            if path != "/mcp":
+                self._send_json({"ok": False, "error": "not found"}, status=404)
+                return
+
+            response = handle_request(body)
             if response is None:
                 self.send_response(202)
                 self.send_header("Content-Length", "0")
@@ -89,6 +105,7 @@ def main() -> None:
     server = ThreadingHTTPServer((HOST, PORT), MCPHandler)
     print(f"Sese Board Game MCP HTTP server listening on http://{HOST}:{PORT}")
     print(f"MCP endpoint: http://{HOST}:{PORT}/mcp")
+    print(f"Command endpoint: http://{HOST}:{PORT}/command")
     print(f"Save path: {SAVE_PATH}")
     server.serve_forever()
 
